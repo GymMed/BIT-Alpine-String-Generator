@@ -1,0 +1,178 @@
+<script>
+    window.initStringGenerator = function () {
+        return {
+            stringsAmountValue: 100,
+            stringsLengthValue: 4,
+            stringsArray: [],
+            isGeneratedSuccessully: false,
+            showResult: false,
+            //second buttons state
+            findMatch: "A",
+            matchingStrings: [],
+            foundMatchingStrings: false,
+            showMatchingStrings: false,
+            getElementsThatStartsAndEndsWithSameString(stringToFind) {
+                this.showMatchingStrings = true;
+
+                if (!this.isNotEmptyArray(this.stringsArray)) {
+                    this.foundMatchingStrings = false;
+                    return;
+                }
+
+                this.foundMatchingStrings = true;
+                foundArray = [];
+
+                for (const key in this.stringsArray) {
+                    if (
+                        this.containsStringAtStartAndEnd(
+                            this.stringsArray[key],
+                            this.findMatch
+                        )
+                    ) {
+                        foundArray.push({
+                            key: key,
+                            value: this.stringsArray[key],
+                        });
+                    }
+                }
+
+                return foundArray;
+            },
+            containsStringAtStartAndEnd(stringToCheck, stringToFind) {
+                if (
+                    typeof stringToCheck !== "string" ||
+                    typeof stringToFind !== "string"
+                )
+                    throw new Error(
+                        "Provided invalid type variables to function!"
+                    );
+
+                const lettersUsed = stringToFind.length;
+
+                if (
+                    stringToCheck.substring(0, lettersUsed) === stringToFind &&
+                    stringToCheck.substring(
+                        stringToCheck.length - lettersUsed,
+                        stringToCheck.length
+                    ) === stringToFind
+                )
+                    return true;
+
+                return false;
+            },
+            getObjectsInArrayAsStrings(arrayOfObjects) {
+                if (!this.isNotEmptyArray(arrayOfObjects)) return "";
+                console.log(arrayOfObjects);
+
+                return arrayOfObjects
+                    .map(({ key, value }) => `key: ${key}; Value: ${value};`)
+                    .join(" | ");
+            },
+            generateResults() {
+                this.stringsArray = this.getRandomArrayOfStrings(
+                    this.stringsAmountValue,
+                    this.stringsLengthValue
+                );
+                this.showResult = true;
+
+                if (!this.isNotEmptyArray(this.stringsArray)) {
+                    this.isGeneratedSuccessully = false;
+                    return;
+                }
+                this.isGeneratedSuccessully = true;
+            },
+            getRandomArrayOfStrings(count, stringLength) {
+                if (count < 1 || stringLength < 1)
+                    throw new Error("Provided invalid parameters!");
+
+                const stringsArray = [];
+
+                for (
+                    let currentString = 0;
+                    currentString < count;
+                    currentString++
+                ) {
+                    stringsArray.push(this.getRandomLatinString(stringLength));
+                }
+
+                return stringsArray;
+            },
+
+            getRandomLatinString(length) {
+                let output = "";
+
+                for (let currentChar = 0; currentChar < length; currentChar++) {
+                    output += String.fromCharCode(this.getRandomNumber(65, 90));
+                }
+
+                return output;
+            },
+
+            isNotEmptyArray(array) {
+                if (Array.isArray(array) && array.length > 0) return true;
+                return false;
+            },
+
+            getRandomNumber(min, max) {
+                return Math.floor(Math.random() * (max - min + 1)) + min;
+            },
+        };
+    };
+</script>
+
+<div x-data="initStringGenerator();" x-init="" class="flex flex-col gap-3">
+    <div class="flex flex-col gap-3">
+        <label for="stringsAmount">Amount Of Strings To Generate</label>
+        <input
+            type="text"
+            name="stringsAmount"
+            id="stringsAmount"
+            value="100"
+            placeholder="Amount of strings goes here . . ."
+            class="w-full h-full p-2 border-2 rounded-md focus:ring-blue-500 focus:ring focus:ring-offset-2 focus:ring-offset-white"
+            x-model="stringsAmountValue"
+        />
+    </div>
+    <div class="flex flex-col gap-3">
+        <label for="stringsLength">Length Of Strings</label>
+        <input
+            type="text"
+            name="stringsLength"
+            id="stringsLength"
+            value="4"
+            placeholder="Length of strings goes here . . ."
+            class="w-full h-full p-2 border-2 rounded-md focus:ring-blue-500 focus:ring focus:ring-offset-2 focus:ring-offset-white"
+            x-model="stringsLengthValue"
+        />
+    </div>
+    <div
+        x-show="showResult"
+        class="whitespace-normal break-all w-full bg-gradient-to-br from-orange-400 to-orange-600 text-white pb-3 pt-4 pl-3 pr-2 rounded"
+        :class="{ 'from-green-500 to-green-700': isGeneratedSuccessully,
+                 'from-red-500 to-red-700': !isGeneratedSuccessully }"
+        x-html="isGeneratedSuccessully ? 'Generated strings: <br>' + '&quot;' + stringsArray.join(', ') + '&quot;' : `We couldn't generate strings with provided options!`"
+    ></div>
+    <button
+        type="button"
+        class="text-white bg-gradient-to-br from-blue-500 to-blue-700 hover:from-blue-700 hover:to-blue-900 rounded"
+        @click="generateResults();"
+    >
+        <div class="hover:scale-110 px-4 py-1">Generate</div>
+    </button>
+    <div
+        x-show="showMatchingStrings"
+        class="whitespace-normal break-all w-full bg-gradient-to-br text-white pb-3 pt-4 pl-3 pr-2 rounded"
+        :class="{ 'from-green-500 to-green-700': foundMatchingStrings,
+                 'from-red-500 to-red-700': !foundMatchingStrings }"
+        x-html="foundMatchingStrings ? 'Found starting and ending with &quot;' + findMatch + '&quot; strings: <br>' + '&quot;' + getObjectsInArrayAsStrings(matchingStrings) + '&quot;' : `We couldn't find matching strings!`"
+    ></div>
+    <button
+        type="button"
+        class="text-white bg-gradient-to-br from-blue-500 to-blue-700 hover:from-blue-700 hover:to-blue-900 rounded"
+        @click="matchingStrings = getElementsThatStartsAndEndsWithSameString(findMatch);"
+    >
+        <div class="hover:scale-110 px-4 py-1">
+            Get Elements With A Start And End
+        </div>
+    </button>
+</div>
