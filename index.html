@@ -45,7 +45,6 @@
                 fetch(`assets/html/components/${componentName}.html`)
                     .then((response) => response.text())
                     .then((html) => {
-                        // Assuming you have a specific container in your main.html
                         executeScripts(html);
                         const newDom = document.createElement("div");
                         newDom.innerHTML = html;

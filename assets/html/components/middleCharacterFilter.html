@@ -1,0 +1,84 @@
+<script>
+    window.middleCharacterFilterData = function () {
+        //this.stringsArray is passed from stringGenerator!
+        return {
+            //forth task variables,
+            showFilteredMiddleStrings: false,
+            foundFilteredMiddleStrings: false,
+            filterByMiddleStrings: [],
+            getMiddleCharacterMatchingStrings() {
+                this.showFilteredMiddleStrings = true;
+
+                if (!this.isNotEmptyArray(this.stringsArray)) {
+                    this.foundFilteredMiddleStrings = false;
+                    return [];
+                }
+
+                foundArray = this.getFilteredArrayByMatchingMiddleCharacters(
+                    this.stringsArray
+                );
+
+                if (foundArray.length < 1) {
+                    this.foundFilteredMiddleStrings = false;
+                    return [];
+                }
+                this.foundFilteredMiddleStrings = true;
+
+                return foundArray;
+            },
+            getFilteredArrayByMatchingMiddleCharacters(array) {
+                if (!this.isNotEmptyArray(array)) return [];
+
+                let middleCharacterIndex = 0;
+
+                return array.filter((value) => {
+                    middleCharacterIndex = Math.floor(value.length / 2);
+
+                    if (
+                        middleCharacterIndex * 2 !== value.length ||
+                        value[middleCharacterIndex] !==
+                            value[middleCharacterIndex - 1]
+                    ) {
+                        return false;
+                    }
+                    return true;
+                });
+            },
+            isNotEmptyArray(array) {
+                if (Array.isArray(array) && array.length > 0) return true;
+                return false;
+            },
+            sortArrayDependingOnLength(
+                array,
+                arraySizeToSwitchSortingType = 3,
+                startASCtoProvidedArraySize = true
+            ) {
+                if (array.length < arraySizeToSwitchSortingType) {
+                    //Default ASC (a, b) => a - b // a.localeCompare(b)
+                    return array.slice().sort();
+                }
+                //DESC
+                return array.slice().sort((a, b) => b.localeCompare(a));
+            },
+        };
+    };
+</script>
+<div x-data="middleCharacterFilterData();" class="w-full flex flex-col gap-3">
+    <div
+        x-show="showFilteredMiddleStrings"
+        class="whitespace-normal break-all w-full bg-gradient-to-br text-white pb-3 pt-4 pl-3 pr-2 rounded"
+        :class="{ 'from-green-500 to-green-700': foundFilteredMiddleStrings,
+                     'from-red-500 to-red-700': !foundFilteredMiddleStrings }"
+        x-html="foundFilteredMiddleStrings ? 'Found matching middle characters strings: <br>' + '&quot;' + filterByMiddleStrings.join(', ') + '&quot;' : `We couldn't find matching middle characters strings!`"
+    ></div>
+    <button
+        type="button"
+        class="text-white bg-gradient-to-br from-blue-500 to-blue-700 hover:from-blue-700 hover:to-blue-900 rounded"
+        @click="filterByMiddleStrings = sortArrayDependingOnLength(getMiddleCharacterMatchingStrings());"
+    >
+        <div
+            class="hover:scale-110 px-4 py-1"
+            x-text="'Filter By Matching Middle Characters'"
+        ></div>
+    </button>
+</div>

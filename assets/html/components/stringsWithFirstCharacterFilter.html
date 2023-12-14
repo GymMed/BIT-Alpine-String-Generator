@@ -1,0 +1,92 @@
+<script>
+    window.stringWithFirstCharacterFilterData = function () {
+        //this.stringsArray is passed from stringGenerator!
+        return {
+            //third task variables
+            firstLettersToFilterByValue: "XMK",
+            foundFilteredStrings: false,
+            showFilteredStrings: false,
+            filterByFirstLettersStrings: [],
+            startThirdCheck() {
+                this.showFilteredStrings = true;
+
+                if (!this.isNotEmptyArray(this.stringsArray)) {
+                    this.foundFilteredStrings = false;
+                    return [];
+                }
+
+                foundArray = this.getFilteredArrayByLetters(
+                    this.stringsArray,
+                    this.firstLettersToFilterByValue
+                );
+
+                if (foundArray.length < 1) {
+                    this.foundFilteredStrings = false;
+                    return [];
+                }
+                this.foundFilteredStrings = true;
+
+                return foundArray;
+            },
+            getFilteredArrayByLetters(array, lettersString) {
+                if (!this.isNotEmptyArray(array)) return [];
+
+                const filterLettersAsArray = lettersString.split("");
+
+                return array.filter((value) => {
+                    return filterLettersAsArray.includes(
+                        value.charAt(0).toUpperCase()
+                    );
+                });
+            },
+
+            isNotEmptyArray(array) {
+                if (Array.isArray(array) && array.length > 0) return true;
+                return false;
+            },
+            sortArrayDependingOnLength(
+                array,
+                arraySizeToSwitchSortingType = 3,
+                startASCtoProvidedArraySize = true
+            ) {
+                if (array.length < arraySizeToSwitchSortingType) {
+                    //Default ASC (a, b) => a - b // a.localeCompare(b)
+                    return array.slice().sort();
+                }
+                //DESC
+                return array.slice().sort((a, b) => b.localeCompare(a));
+            },
+        };
+    };
+</script>
+<div x-data="stringWithFirstCharacterFilterData();" class="flex flex-col gap-3">
+    <div class="flex flex-col gap-3">
+        <label for="firstLettersToFilterBy">First Letters To Filter By</label>
+        <input
+            type="text"
+            name="firstLettersToFilterBy"
+            id="firstLettersToFilterBy"
+            placeholder="Letters goes here . . ."
+            class="w-full h-full p-2 border-2 rounded-md focus:ring-blue-500 focus:ring focus:ring-offset-2 focus:ring-offset-white"
+            x-model="firstLettersToFilterByValue"
+            @input="showFilteredStrings = false;"
+        />
+    </div>
+    <div
+        x-show="showFilteredStrings"
+        class="whitespace-normal break-all w-full bg-gradient-to-br text-white pb-3 pt-4 pl-3 pr-2 rounded"
+        :class="{ 'from-green-500 to-green-700': foundFilteredStrings,
+                     'from-red-500 to-red-700': !foundFilteredStrings }"
+        x-html="foundFilteredStrings ? 'Found starting with &quot;' + firstLettersToFilterByValue.split('').join('&quot;, &quot;') + '&quot; strings: <br>' + '&quot;' + filterByFirstLettersStrings.join('&quot;, &quot;') + '&quot;' : `We couldn't find matching strings!`"
+    ></div>
+    <button
+        type="button"
+        class="text-white bg-gradient-to-br from-blue-500 to-blue-700 hover:from-blue-700 hover:to-blue-900 rounded"
+        @click="filterByFirstLettersStrings = sortArrayDependingOnLength( startThirdCheck() );"
+    >
+        <div
+            class="hover:scale-110 px-4 py-1"
+            x-text="'Filter by &quot;' + firstLettersToFilterByValue.split('').join('&quot;, &quot;') + '&quot;'"
+        ></div>
+    </button>
+</div>
