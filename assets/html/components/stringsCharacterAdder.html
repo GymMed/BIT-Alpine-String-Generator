@@ -1,0 +1,106 @@
+<script>
+    window.stringsCharacterAdderData = function () {
+        return {
+            charactersAddCountValue: 1,
+            isCharactersAddedSuccessfully: false,
+            showCharactersAddResult: false,
+            resultsMessage: "",
+            finalStrings: [],
+            setResultAsGeneratedArray() {
+                if (!this.isNotEmptyArray(this.finalStrings)) return;
+
+                this.stringsArray = this.finalStrings;
+                this.showCharactersAddResult = false;
+            },
+            getAttachedRandomCharactersToStrings(strings, count) {
+                this.showCharactersAddResult = true;
+
+                if (!this.isNotEmptyArray(strings)) {
+                    this.isCharactersAddedSuccessfully = false;
+                    this.resultsMessage =
+                        "Couldn't Add characters to empty strings array!<br>" +
+                        "Firstly generate strings array!";
+                    return [];
+                } else if (
+                    count === null ||
+                    count === undefined ||
+                    isNaN(count) ||
+                    count < 0
+                ) {
+                    this.isCharactersAddedSuccessfully = false;
+                    this.resultsMessage =
+                        "Provided invalid random characters count!";
+                    return [];
+                }
+
+                const newStrings = strings.map((currentString) => {
+                    return currentString + this.getRandomLatinString(count);
+                });
+
+                this.isCharactersAddedSuccessfully = true;
+                this.resultsMessage =
+                    `Added random ` +
+                    count +
+                    ` characters results: <br>` +
+                    `&quot;` +
+                    newStrings.join(", ") +
+                    `&quot;`;
+
+                return newStrings;
+            },
+
+            getRandomLatinString(length) {
+                let output = "";
+
+                for (let currentChar = 0; currentChar < length; currentChar++) {
+                    output += String.fromCharCode(this.getRandomNumber(65, 90));
+                }
+
+                return output;
+            },
+
+            isNotEmptyArray(array) {
+                if (Array.isArray(array) && array.length > 0) return true;
+                return false;
+            },
+
+            getRandomNumber(min, max) {
+                return Math.floor(Math.random() * (max - min + 1)) + min;
+            },
+        };
+    };
+</script>
+<div x-data="stringsCharacterAdderData()" class="flex flex-col gap-3">
+    <div class="flex flex-col gap-3">
+        <label for="charactersAddCount">Random Characters Add Count:</label>
+        <input
+            type="text"
+            name="charactersAddCount"
+            id="charactersAddCount"
+            placeholder="Characters goes here . . ."
+            class="w-full h-full p-2 border-2 rounded-md focus:ring-blue-500 focus:ring focus:ring-offset-2 focus:ring-offset-white"
+            x-model="charactersAddCountValue"
+        />
+    </div>
+    <div
+        x-show="showCharactersAddResult"
+        class="whitespace-normal break-all w-full bg-gradient-to-br from-orange-400 to-orange-600 text-white pb-3 pt-4 pl-3 pr-2 rounded"
+        :class="{ 'from-green-500 to-green-700': isCharactersAddedSuccessfully,
+                 'from-red-500 to-red-700': !isCharactersAddedSuccessfully }"
+        x-html="resultsMessage"
+    ></div>
+    <button
+        type="button"
+        class="text-white bg-gradient-to-br from-blue-500 to-blue-700 hover:from-blue-700 hover:to-blue-900 rounded"
+        @click="finalStrings = getAttachedRandomCharactersToStrings(stringsArray, charactersAddCountValue);"
+    >
+        <div class="hover:scale-110 px-4 py-1">Add Random Characters</div>
+    </button>
+    <button
+        type="button"
+        class="text-white bg-gradient-to-br from-blue-500 to-blue-700 hover:from-blue-700 hover:to-blue-900 rounded"
+        @click="setResultAsGeneratedArray();"
+    >
+        <div class="hover:scale-110 px-4 py-1">Set As Generated Array</div>
+    </button>
+</div>

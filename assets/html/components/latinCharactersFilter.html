@@ -1,0 +1,48 @@
+<script>
+    window.latinCharactersFilterData = function () {
+        return {
+            showSortResult: false,
+            sortResultMessage: "",
+            isSortedSuccessully: false,
+            sortStringArrayByASC() {
+                this.showSortResult = true;
+
+                if (!this.isNotEmptyArray(this.stringsArray)) {
+                    this.isSortedSuccessully = false;
+                    this.sortResultMessage =
+                        "You firstly need to generate strings in order to sort their character!";
+                    return;
+                }
+
+                this.stringsArray.forEach((string, index) => {
+                    this.stringsArray[index] = string.split("").sort().join("");
+                });
+
+                this.isSortedSuccessully = true;
+                this.sortResultMessage = "Sorted successfully!";
+            },
+            isNotEmptyArray(array) {
+                if (Array.isArray(array) && array.length > 0) return true;
+                return false;
+            },
+        };
+    };
+</script>
+<div x-data="latinCharactersFilterData();" class="flex flex-col gap-3">
+    <div
+        x-show="showSortResult"
+        class="whitespace-normal break-all w-full bg-gradient-to-br from-orange-400 to-orange-600 text-white pb-3 pt-4 pl-3 pr-2 rounded"
+        :class="{ 'from-green-500 to-green-700': isSortedSuccessully,
+                 'from-red-500 to-red-700': !isSortedSuccessully }"
+        x-html="sortResultMessage"
+    ></div>
+    <button
+        type="button"
+        class="text-white bg-gradient-to-br from-blue-500 to-blue-700 hover:from-blue-700 hover:to-blue-900 rounded"
+        @click="sortStringArrayByASC();"
+    >
+        <div class="hover:scale-110 px-4 py-1">
+            Sort Characters In Generated Strings
+        </div>
+    </button>
+</div>
