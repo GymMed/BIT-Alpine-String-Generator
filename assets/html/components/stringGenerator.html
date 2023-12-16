@@ -8,7 +8,6 @@
             showResult: false,
             getObjectsInArrayAsStrings(arrayOfObjects) {
                 if (!this.isNotEmptyArray(arrayOfObjects)) return "";
-                console.log(arrayOfObjects);
 
                 return arrayOfObjects
                     .map(({ key, value }) => `key: ${key}; Value: ${value};`)
@@ -115,5 +114,12 @@
     ></div>
     <div x-data="{}" x-init="loadComponent('middleCharacterFilter', $el)"></div>
     <div x-data="{}" x-init="loadComponent('stringsCharacterAdder', $el)"></div>
-    <div x-data="{}" x-init="loadComponent('latinCharactersFilter', $el)"></div>
+    <div
+        x-data="{}"
+        x-init="loadComponent('latinCharactersSorterASC', $el)"
+    ></div>
+    <div
+        x-data="{}"
+        x-init="loadComponent('latinCharactersSorterDESC', $el)"
+    ></div>
 </div>

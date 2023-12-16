@@ -1,5 +1,5 @@
 <script>
-    window.latinCharactersFilterData = function () {
+    window.latinCharactersSorterASC = function () {
         return {
             showSortResult: false,
             sortResultMessage: "",
@@ -15,11 +15,13 @@
                 }
 
                 this.stringsArray.forEach((string, index) => {
+                    //alternative for sorting small and special characters
+                    //(a, b) => a.localeCompare(b, 'es', {sensitivity: 'base'})
                     this.stringsArray[index] = string.split("").sort().join("");
                 });
 
                 this.isSortedSuccessully = true;
-                this.sortResultMessage = "Sorted successfully!";
+                this.sortResultMessage = "Sorted by ASC successfully!";
             },
             isNotEmptyArray(array) {
                 if (Array.isArray(array) && array.length > 0) return true;
@@ -28,7 +30,7 @@
         };
     };
 </script>
-<div x-data="latinCharactersFilterData();" class="flex flex-col gap-3">
+<div x-data="latinCharactersSorterASC();" class="flex flex-col gap-3">
     <div
         x-show="showSortResult"
         class="whitespace-normal break-all w-full bg-gradient-to-br from-orange-400 to-orange-600 text-white pb-3 pt-4 pl-3 pr-2 rounded"
@@ -42,7 +44,7 @@
         @click="sortStringArrayByASC();"
     >
         <div class="hover:scale-110 px-4 py-1">
-            Sort Characters In Generated Strings
+            Sort Characters By ASC In Generated Strings
         </div>
     </button>
 </div>

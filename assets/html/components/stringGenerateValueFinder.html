@@ -1,0 +1,208 @@
+<script>
+    window.initStringGenerator = function () {
+        return {
+            stringsLengthValue: 4,
+            generatedStringsCount: 0,
+            valueFinderMessage: "",
+            findValue: "XMAS",
+            highlightSpan: "",
+            findTriesBeforeDelay: 30,
+            tryingToFind: false,
+            isGeneratedSuccessully: false,
+            showResult: false,
+            startGeneratingUntilFindValue(findContainingString, stringLength) {
+                if (
+                    typeof findContainingString !== "string" ||
+                    findContainingString.length < 1 ||
+                    stringLength < 1 ||
+                    findContainingString.length > stringLength
+                ) {
+                    this.valueFinderMessage = "Provided invalid parameters!";
+                    this.showResult = true;
+                    this.isGeneratedSuccessully = false;
+                    return;
+                }
+
+                const hasNotUpperCaseLatinCharactersRegex = /[^A-Z]/;
+                if (
+                    hasNotUpperCaseLatinCharactersRegex.test(
+                        findContainingString
+                    )
+                ) {
+                    this.valueFinderMessage =
+                        "Only uppercase latin characters allowed!<br>Provided find containing string has not only uppercase latin characters!";
+                    this.showResult = true;
+                    this.isGeneratedSuccessully = false;
+                    return;
+                }
+
+                if (this.tryingToFind) {
+                    this.valueFinderMessage =
+                        "You are already searching for containing string!";
+                    this.showResult = true;
+                    this.isGeneratedSuccessully = false;
+                    return;
+                }
+
+                this.tryingToFind = true;
+                this.showResult = false;
+                this.generatedStringsCount = 0;
+
+                this.recursiveGeneratingUntilFindValue(
+                    findContainingString,
+                    stringLength
+                );
+            },
+            async recursiveGeneratingUntilFindValue(
+                findContainingString,
+                stringLength
+            ) {
+                let generatedString = this.getRandomLatinString(stringLength);
+                console.log(generatedString);
+                this.generatedStringsCount++;
+
+                if (generatedString.includes(findContainingString)) {
+                    this.foundContainingString(
+                        generatedString,
+                        findContainingString
+                    );
+                    return;
+                }
+
+                //needed to not get stack overflow error
+                if (
+                    this.generatedStringsCount % this.findTriesBeforeDelay ===
+                    0
+                ) {
+                    await new Promise((resolve) => setTimeout(resolve, 100));
+                }
+
+                this.recursiveGeneratingUntilFindValue(
+                    findContainingString,
+                    stringLength
+                );
+            },
+            foundContainingString(stringSearchedIn, findContainingString) {
+                this.showResult = true;
+                this.isGeneratedSuccessully = true;
+                this.tryingToFind = false;
+                this.highlightSpan = `<span class="bg-blue-500 text-white px-1 rounded-md mx-1">${findContainingString}</span>`;
+                this.valueFinderMessage =
+                    `Found containing string from tries: ${this.generatedStringsCount}` +
+                    `<br>Found in string: ${this.highlightStringInString(
+                        stringSearchedIn,
+                        findContainingString,
+                        this.highlightSpan
+                    )}`;
+            },
+
+            highlightStringInString(
+                stringSearchedIn,
+                findContainingString,
+                switchToSpan
+            ) {
+                const findStringRegex = new RegExp(
+                    `${findContainingString}`,
+                    "gi"
+                );
+                return stringSearchedIn.replaceAll(
+                    findStringRegex,
+                    (match) => switchToSpan
+                );
+            },
+
+            getRandomLatinString(length) {
+                let output = "";
+
+                for (let currentChar = 0; currentChar < length; currentChar++) {
+                    output += String.fromCharCode(this.getRandomNumber(65, 90));
+                }
+
+                return output;
+            },
+
+            isNotEmptyArray(array) {
+                if (Array.isArray(array) && array.length > 0) return true;
+                return false;
+            },
+
+            getRandomNumber(min, max) {
+                return Math.floor(Math.random() * (max - min + 1)) + min;
+            },
+        };
+    };
+</script>
+
+<div x-data="initStringGenerator();" x-init="" class="flex flex-col gap-3">
+    <div class="flex flex-col gap-3">
+        <label for="stringsLength">Length Of Strings</label>
+        <input
+            type="text"
+            name="stringsLength"
+            id="stringsLength"
+            placeholder="Length of strings goes here . . ."
+            class="w-full h-full p-2 border-2 rounded-md focus:ring-blue-500 focus:ring focus:ring-offset-2 focus:ring-offset-white"
+            x-model="stringsLengthValue"
+        />
+    </div>
+    <div class="flex flex-col gap-3">
+        <label for="findValue">Find Containing String</label>
+        <input
+            type="text"
+            name="findValue"
+            id="findValue"
+            placeholder="Find string value goes here . . ."
+            class="w-full h-full p-2 border-2 rounded-md focus:ring-blue-500 focus:ring focus:ring-offset-2 focus:ring-offset-white"
+            x-model="findValue"
+        />
+    </div>
+    <div
+        x-show="showResult"
+        class="whitespace-normal break-all w-full bg-gradient-to-br from-orange-400 to-orange-600 text-white pb-3 pt-4 pl-3 pr-2 rounded"
+        :class="{ 'from-green-500 to-green-700': isGeneratedSuccessully,
+                 'from-red-500 to-red-700': !isGeneratedSuccessully }"
+        x-html="valueFinderMessage"
+    ></div>
+    <button
+        type="button"
+        class="text-white bg-gradient-to-br from-blue-500 to-blue-700 hover:from-blue-700 hover:to-blue-900 rounded"
+        @click="startGeneratingUntilFindValue(findValue, stringsLengthValue);"
+    >
+        <div
+            class="flex gap-3 justify-center items-center hover:scale-110 px-4 py-2 transition-opacity duration-1000"
+            :class="{'opacity-40': tryingToFind,
+                    'opacity-100': !tryingToFind}"
+        >
+            <div
+                class="text-center"
+                x-text="!tryingToFind ? 'Generate Until Value Is Found' : 'Searching . . . '"
+            ></div>
+            <div x-show="tryingToFind">
+                <svg
+                    class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                >
+                    <circle
+                        class="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        stroke-width="4"
+                    ></circle>
+                    <path
+                        class="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                </svg>
+            </div>
+        </div>
+    </button>
+    <div
+        x-data="{}"
+        x-init="loadComponent('latinCharactersSorterForSingleStringDESC', $el)"
+    ></div>
+</div>

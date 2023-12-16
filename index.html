@@ -23,6 +23,17 @@
                     x-init="loadComponent('stringGenerator', $el)"
                 ></div>
             </section>
+            <h1 class="text-center text-2xl text-purple-500 font-bold">
+                String Value Finder In Random Strings Component
+            </h1>
+            <section
+                class="bg-gray-50 p-5 flex flex-col gap-5 shadow-inner rounded-lg"
+            >
+                <div
+                    x-data="{}"
+                    x-init="loadComponent('stringGenerateValueFinder', $el)"
+                ></div>
+            </section>
         </main>
         <script>
             function executeScripts(html) {
