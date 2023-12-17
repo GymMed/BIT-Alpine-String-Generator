@@ -4,7 +4,6 @@
             stringsLengthValue: 4,
             generatedStringsCount: 0,
             valueFinderMessage: "",
-            findValue: "XMAS",
             highlightSpan: "",
             findTriesBeforeDelay: 30,
             tryingToFind: false,
@@ -86,7 +85,9 @@
                 this.showResult = true;
                 this.isGeneratedSuccessully = true;
                 this.tryingToFind = false;
-                this.highlightSpan = `<span class="bg-blue-500 text-white px-1 rounded-md mx-1">${findContainingString}</span>`;
+                this.$store.stringGeneratorValueFinder.foundInString =
+                    stringSearchedIn;
+                this.highlightSpan = `<span class="bg-blue-500 text-white px-1 rounded-md mx-1 border-2">${findContainingString}</span>`;
                 this.valueFinderMessage =
                     `Found containing string from tries: ${this.generatedStringsCount}` +
                     `<br>Found in string: ${this.highlightStringInString(
@@ -153,7 +154,7 @@
             id="findValue"
             placeholder="Find string value goes here . . ."
             class="w-full h-full p-2 border-2 rounded-md focus:ring-blue-500 focus:ring focus:ring-offset-2 focus:ring-offset-white"
-            x-model="findValue"
+            x-model="$store.stringGeneratorValueFinder.findValue"
         />
     </div>
     <div
@@ -166,7 +167,7 @@
     <button
         type="button"
         class="text-white bg-gradient-to-br from-blue-500 to-blue-700 hover:from-blue-700 hover:to-blue-900 rounded"
-        @click="startGeneratingUntilFindValue(findValue, stringsLengthValue);"
+        @click="startGeneratingUntilFindValue($store.stringGeneratorValueFinder.findValue, stringsLengthValue);"
     >
         <div
             class="flex gap-3 justify-center items-center hover:scale-110 px-4 py-2 transition-opacity duration-1000"
@@ -204,5 +205,9 @@
     <div
         x-data="{}"
         x-init="loadComponent('latinCharactersSorterForSingleStringDESC', $el)"
+    ></div>
+    <div
+        x-data="{}"
+        x-init="loadComponent('positionsOfOccurancesFinder', $el)"
     ></div>
 </div>

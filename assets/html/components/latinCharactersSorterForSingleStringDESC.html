@@ -1,32 +1,135 @@
 <script>
     window.latinCharactersSorterForSingleStringDESCData = function () {
-        //single string is passed from parent!
+        ///passed variables from parent:
+        //foundInString
+        //findValue
         return {
             showSortResult: false,
             isSortedSuccessully: false,
             sortResultMessage: "",
             sortStringByDESC() {
                 this.showSortResult = true;
+                let foundString =
+                    this.$store.stringGeneratorValueFinder.foundInString;
 
-                if (!this.isNotEmptyArray(this.stringsArray)) {
+                if (foundString === "" || foundString === undefined) {
                     this.isSortedSuccessully = false;
                     this.sortResultMessage =
-                        "You firstly need to generate strings in order to sort their character!";
+                        "You firstly need to find value order to sort by their characters!";
                     return;
                 }
 
-                this.stringsArray.forEach((string, index) => {
-                    this.stringsArray[index] = string
-                        .split("")
-                        //alternative for small characters
-                        //(a, b) => b.localeCompare(a, 'es', {sensitivity: 'base'})
-                        .sort()
-                        .reverse()
-                        .join("");
-                });
+                let storedFindValue =
+                    this.$store.stringGeneratorValueFinder.findValue;
+
+                const foundMatchesPositions = this.findValuesPositionsInString(
+                    foundString,
+                    storedFindValue
+                );
+                let sortedSuccessString = foundString
+                    .replaceAll(storedFindValue, "")
+                    .split("")
+                    .sort()
+                    .reverse()
+                    .join("");
+
+                let insertPosition = this.findSortPositionForDESC(
+                    sortedSuccessString,
+                    storedFindValue
+                );
+
+                let insertedValues = sortedSuccessString;
+                let highlightedValue = this.getHighlightedText(storedFindValue);
+
+                for (
+                    let currentString = 0;
+                    currentString < foundMatchesPositions.length;
+                    currentString++
+                ) {
+                    insertedValues = this.insertStringAtIndex(
+                        insertedValues,
+                        insertPosition,
+                        highlightedValue
+                    );
+                }
 
                 this.isSortedSuccessully = true;
-                this.sortResultMessage = "Sorted By DESC successfully!";
+                this.sortResultMessage =
+                    "Sorted By DESC successfully!" + `<br>"${insertedValues}"`;
+            },
+            insertStringAtIndex(originalString, index, valueToInsert) {
+                if (index < 0 || index > originalString.length) {
+                    throw new Error("Index out of bounds");
+                }
+
+                return (
+                    originalString.slice(0, index) +
+                    valueToInsert +
+                    originalString.slice(index)
+                );
+            },
+            findSortPositionForDESC(string, value) {
+                let foundLetterMatch = false;
+                let currentValueLetter = 0;
+
+                for (
+                    let currentStringLetter = 0;
+                    currentStringLetter < string.length;
+                    currentStringLetter++
+                ) {
+                    if (
+                        value[currentValueLetter].localeCompare(
+                            string[currentStringLetter]
+                        ) === 1
+                    ) {
+                        return currentStringLetter;
+                    }
+                }
+
+                return currentStringLetter;
+            },
+            findValuesPositionsInString(string, value) {
+                let foundLetterMatch = false;
+                let currentValueLetter = 0;
+                let valueStartIndexInString = 0;
+                let valueLengthMinusOne = value.length - 1;
+                const savedPositionsIndexes = [];
+
+                for (
+                    let currentStringLetter = 0;
+                    currentStringLetter < string.length;
+                    currentStringLetter++
+                ) {
+                    if (
+                        string[currentStringLetter] ===
+                        value[currentValueLetter]
+                    ) {
+                        foundLetterMatch = true;
+
+                        if (currentValueLetter === valueLengthMinusOne) {
+                            //use valueLengthMinusOne
+                            valueStartIndexInString =
+                                currentStringLetter - valueLengthMinusOne;
+                            savedPositionsIndexes.push(valueStartIndexInString);
+
+                            currentValueLetter = 0;
+                            foundLetterMatch = false;
+                            continue;
+                        }
+
+                        currentValueLetter++;
+                        continue;
+                    }
+
+                    currentValueLetter = 0;
+                    foundLetterMatch = false;
+                }
+
+                return savedPositionsIndexes;
+            },
+
+            getHighlightedText(text) {
+                return `<span class="bg-blue-500 text-white px-1 rounded-md mx-1 border-2">${text}</span>`;
             },
             isNotEmptyArray(array) {
                 if (Array.isArray(array) && array.length > 0) return true;
@@ -35,7 +138,10 @@
         };
     };
 </script>
-<div x-data="latinCharactersSorterForSingleStringDESCData();">
+<div
+    x-data="latinCharactersSorterForSingleStringDESCData();"
+    class="flex flex-col gap-3"
+>
     <div
         x-show="showSortResult"
         class="whitespace-normal break-all w-full bg-gradient-to-br from-orange-400 to-orange-600 text-white pb-3 pt-4 pl-3 pr-2 rounded"
@@ -46,8 +152,8 @@
     <button
         type="button"
         class="text-white bg-gradient-to-br from-blue-500 to-blue-700 hover:from-blue-700 hover:to-blue-900 rounded"
-        @click="generateResults();"
+        @click="sortStringByDESC();"
     >
-        <div class="hover:scale-110 px-4 py-1">Generate</div>
+        <div class="hover:scale-110 px-4 py-1">Sort By DESC</div>
     </button>
 </div>
