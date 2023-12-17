@@ -90,11 +90,11 @@
                 this.highlightSpan = `<span class="bg-blue-500 text-white px-1 rounded-md mx-1 border-2">${findContainingString}</span>`;
                 this.valueFinderMessage =
                     `Found containing string from tries: ${this.generatedStringsCount}` +
-                    `<br>Found in string: ${this.highlightStringInString(
+                    `<br>Found in string: <br>"${this.highlightStringInString(
                         stringSearchedIn,
                         findContainingString,
                         this.highlightSpan
-                    )}`;
+                    )}"`;
             },
 
             highlightStringInString(

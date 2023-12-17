@@ -39,7 +39,6 @@
                 );
 
                 let insertedValues = sortedSuccessString;
-                let highlightedValue = this.getHighlightedText(storedFindValue);
 
                 for (
                     let currentString = 0;
@@ -49,9 +48,17 @@
                     insertedValues = this.insertStringAtIndex(
                         insertedValues,
                         insertPosition,
-                        highlightedValue
+                        storedFindValue
                     );
                 }
+                this.$store.stringGeneratorValueFinder.sortedFoundInString =
+                    insertedValues;
+
+                let highlightedValue = this.getHighlightedText(storedFindValue);
+                insertedValues = insertedValues.replaceAll(
+                    storedFindValue,
+                    highlightedValue
+                );
 
                 this.isSortedSuccessully = true;
                 this.sortResultMessage =
@@ -77,10 +84,11 @@
                     currentStringLetter < string.length;
                     currentStringLetter++
                 ) {
+                    //     value[currentValueLetter].localeCompare(
+                    //     string[currentStringLetter]
+                    // ) === 1
                     if (
-                        value[currentValueLetter].localeCompare(
-                            string[currentStringLetter]
-                        ) === 1
+                        value[currentValueLetter] > string[currentStringLetter]
                     ) {
                         return currentStringLetter;
                     }

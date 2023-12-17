@@ -1,9 +1,106 @@
 <script>
     window.positionsOfOccurancesFinderData = function () {
-        return {};
+        return {
+            foundSuccessully: false,
+            showFindResult: false,
+            findingsMessage: "",
+            findPositionsInBothStrings() {
+                let output = "";
+                let outputForSorted = "";
+
+                let foundInString =
+                    this.$store.stringGeneratorValueFinder.foundInString;
+                let sortedFoundInString =
+                    this.$store.stringGeneratorValueFinder.sortedFoundInString;
+                let findValue =
+                    this.$store.stringGeneratorValueFinder.findValue;
+
+                this.showFindResult = true;
+                this.foundSuccessully = true;
+                let positionsFoundIn = "";
+
+                if (foundInString === "") {
+                    output =
+                        "You need to firstly generate and try to find string in order to get it's positions!";
+                    this.foundSuccessully = false;
+                } else {
+                    positionsFoundIn = this.findValuesPositionsInString(
+                        foundInString,
+                        findValue
+                    ).join(", ");
+                    output = `Founded matches in positions: <br>${positionsFoundIn}`;
+                }
+
+                if (sortedFoundInString === "") {
+                    outputForSorted =
+                        "You need to firstly sort generated result in order to get positions!";
+                    this.foundSuccessully = false;
+                } else {
+                    positionsFoundIn = this.findValuesPositionsInString(
+                        sortedFoundInString,
+                        findValue
+                    ).join(", ");
+                    outputForSorted = `Founded matches in sorted positions: <br>${positionsFoundIn}`;
+                }
+
+                this.findingsMessage = `${output}<br>${outputForSorted}`;
+            },
+            findValuesPositionsInString(string, value) {
+                let foundLetterMatch = false;
+                let currentValueLetter = 0;
+                let valueStartIndexInString = 0;
+                let valueLengthMinusOne = value.length - 1;
+                const savedPositionsIndexes = [];
+
+                for (
+                    let currentStringLetter = 0;
+                    currentStringLetter < string.length;
+                    currentStringLetter++
+                ) {
+                    if (
+                        string[currentStringLetter] ===
+                        value[currentValueLetter]
+                    ) {
+                        foundLetterMatch = true;
+
+                        if (currentValueLetter === valueLengthMinusOne) {
+                            valueStartIndexInString =
+                                currentStringLetter - valueLengthMinusOne;
+                            savedPositionsIndexes.push(valueStartIndexInString);
+
+                            currentValueLetter = 0;
+                            foundLetterMatch = false;
+                            continue;
+                        }
+
+                        currentValueLetter++;
+                        continue;
+                    }
+
+                    currentValueLetter = 0;
+                    foundLetterMatch = false;
+                }
+
+                return savedPositionsIndexes;
+            },
+        };
     };
 </script>
-<div
-    x-data="positionsOfOccurancesFinderData();"
-    class="flex flex-col gap-3"
-></div>
+<div x-data="positionsOfOccurancesFinderData();" class="flex flex-col gap-3">
+    <div
+        x-show="showFindResult"
+        class="whitespace-normal break-all w-full bg-gradient-to-br from-orange-400 to-orange-600 text-white pb-3 pt-4 pl-3 pr-2 rounded"
+        :class="{ 'from-green-500 to-green-700': foundSuccessully,
+                 'from-red-500 to-red-700': !foundSuccessully }"
+        x-html="findingsMessage"
+    ></div>
+    <button
+        type="button"
+        class="text-white bg-gradient-to-br from-blue-500 to-blue-700 hover:from-blue-700 hover:to-blue-900 rounded"
+        @click="findPositionsInBothStrings();"
+    >
+        <div class="hover:scale-110 px-4 py-1">
+            Find Positions Of Values Found
+        </div>
+    </button>
+</div>
